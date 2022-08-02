@@ -23,7 +23,9 @@ class SoftPermissions : AppCompatActivity() {
     private lateinit var permissions: Array<String>
 
     enum class PermissionStatus {
-        GRANTED, DENIED, PERMANENTLY_DENIED
+        GRANTED,  // Permission granted
+        DENIED,   // Permission denied once, show custom msg why this permission is required for user to enable permissions and request again
+        PERMANENTLY_DENIED // Permission denied, will have to manually enable from settings
     }
 
     private val requestPermission =
@@ -175,6 +177,8 @@ class SoftPermissions : AppCompatActivity() {
         }
 
         //handles multiple request permissions
+        // returns hashmap of permission and their permission Status {PermissionStatus}
+        // returns true when all the permission in the list were granted.
         fun handle(
             context: Context,
             multiplePermissionResult: (HashMap<String, PermissionStatus>, Boolean) -> Unit
