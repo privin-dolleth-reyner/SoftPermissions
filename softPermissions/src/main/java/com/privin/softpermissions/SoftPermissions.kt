@@ -67,12 +67,12 @@ class SoftPermissions : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionMap ->
             var isAnyPermissionPermanentlyDenied = false
             val softPermissionMap = hashMapOf<String, PermissionStatus>()
-            permissionMap.entries.forEach {
+            for (entry in permissionMap.entries){
                 val value = when {
-                    it.value -> {
+                    entry.value -> {
                         PermissionStatus.GRANTED
                     }
-                    Build.VERSION.SDK_INT >= M && shouldShowRequestPermissionRationale(it.key) -> {
+                    Build.VERSION.SDK_INT >= M && shouldShowRequestPermissionRationale(entry.key) -> {
                         PermissionStatus.DENIED_ONCE
                     }
                     else -> {
@@ -80,7 +80,7 @@ class SoftPermissions : AppCompatActivity() {
                         PermissionStatus.DENIED
                     }
                 }
-                softPermissionMap[it.key] = value
+                softPermissionMap[entry.key] = value
             }
 
             multiplePermissionResult.invoke(
