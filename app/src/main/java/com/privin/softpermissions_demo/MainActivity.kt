@@ -38,10 +38,12 @@ class MainActivity : AppCompatActivity() {
         )
             .handlePermanentlyDeniedPermission()
             .handle(this) { permissionMap, allPermissionsGranted ->
+                val permissionGrantedList = permissionMap.filter { it.value == SoftPermissions.PermissionStatus.GRANTED }
+                val permissionDeniedList = permissionMap.filter { it.value != SoftPermissions.PermissionStatus.GRANTED }
                 if (allPermissionsGranted) {
-                    Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "${permissionGrantedList.size} permissions are granted", Toast.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "${permissionDeniedList.size} permissions are denied", Toast.LENGTH_LONG).show()
                 }
             }
     }
