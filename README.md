@@ -1,4 +1,6 @@
-# SoftPermissions
+# SoftPermissions [![Android CI](https://github.com/privin-dolleth-reyner/SoftPermissions/actions/workflows/android.yml/badge.svg?branch=main&event=release)](https://github.com/privin-dolleth-reyner/SoftPermissions/actions/workflows/android.yml) ![Release](https://jitpack.io/v/privin-dolleth-reyner/SoftPermissions.svg)
+
+
 
 A library to handle android permissions targeting android M and above. This library is intented for kotlin users.
 
