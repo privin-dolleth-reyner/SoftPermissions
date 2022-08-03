@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         val btnCamera = findViewById<Button>(R.id.btnReqCam)
         val btnCameraAndStorage = findViewById<Button>(R.id.btnReqCamAndStorage)
         val permission = SoftPermissions.checkPermission(this, Manifest.permission.CAMERA)
-        Toast.makeText(this, "Camera permission: "+ permission.name, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Camera permission: " + permission.name, Toast.LENGTH_SHORT).show()
         btnCamera.setOnClickListener {
             requestCameraPermission()
         }
@@ -24,18 +24,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestCameraPermission() {
-        SoftPermissions.handle(this) { permissionStatus ->
-            Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
-        }
+        SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
+            .handlePermanentlyDeniedPermission()
+            .handle(this) { permissionStatus ->
+                Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun requestCameraAndStoragePermission() {
-        SoftPermissions.handle(this) { permissionMap, allPermissionsGranted ->
-            if (allPermissionsGranted) {
-                Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show()
-            } else {
-                Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show()
+        SoftPermissions.requiredMultiplePermissions(
+            Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+            .handlePermanentlyDeniedPermission()
+            .handle(this) { permissionMap, allPermissionsGranted ->
+                if (allPermissionsGranted) {
+                    Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show()
+                }
             }
-        }
     }
 }
