@@ -147,11 +147,13 @@ class SoftPermissions : AppCompatActivity() {
         multipleRequestPermissions.launch(permissions)
     }
 
+    // logs each permission request in preference (used to check whether permission was requested already)
     private fun logRequest(context: Context, permission: String) {
         val sharedPref = context.getSharedPreferences(SOFT_PERMISSIONS_PREF, Context.MODE_PRIVATE)
         sharedPref.edit().putBoolean(permission, true).apply()
     }
 
+    // creates snackBar with user defined config
     private fun createSnackBar(): Snackbar {
         val msg = intent?.getStringExtra(ARG_HANDLE_PERMANENTLY_DENIED_MSG) ?: resources.getString(R.string.no_permission_msg)
         val snackBar = Snackbar.make(
@@ -212,6 +214,7 @@ class SoftPermissions : AppCompatActivity() {
         private var snackBarConfigRetained = Bundle()
         private var retainConfig = false
 
+        // resets static memory
         private fun clear(){
             permissionIntent = Intent().apply {
                 putExtra(ARG_SNACK_BAR_CONFIG, snackBarConfigRetained)
@@ -219,12 +222,19 @@ class SoftPermissions : AppCompatActivity() {
             snackBarConfig = Bundle()
         }
 
+        //checks whether the permission was invoked previously assuming all permissions handled via SoftPermissions
         private fun isNeverRequested(context: Context, permission: String): Boolean {
             val sharedPref =
                 context.getSharedPreferences(SOFT_PERMISSIONS_PREF, Context.MODE_PRIVATE)
             return sharedPref.getBoolean(permission, false).not()
         }
 
+        /* if user opts to handlePermanentlyDeniedPermission() user will be shown snackBar msg
+        * This snackBar can be configured w.r.t ui
+        * backgroundColor - setBackgroundTint for the snackBar
+        * textColor - sets text color
+        * actionTextColor - sets text color for the action
+        * retainConfig - saves config in memory (use this if you want to have same config through out the app)*/
         fun snackBarConfig(@ColorInt backgroundColor: Int? = null, @ColorInt textColor: Int? = null, @ColorInt actionTextColor: Int? = null, retainConfig: Boolean? = null): Companion {
             backgroundColor?.let {
                 snackBarConfig.putInt(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, it)
