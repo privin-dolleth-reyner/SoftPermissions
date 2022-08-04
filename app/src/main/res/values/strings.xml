@@ -2,5 +2,6 @@
     <string name="app_name">SoftPermissions</string>
     <string name="request_camera_access">Request Camera Access</string>
     <string name="request_camera_and_storage_access">Request Camera and Storage Access</string>
+    <string name="request_camera_msg">This functionality requires camera permission. Please allow from settings</string>
 
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.privin.softpermissions.SoftPermissions
 
 class MainActivity : AppCompatActivity() {
@@ -25,7 +26,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestCameraPermission() {
         SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
-            .handlePermanentlyDeniedPermission()
+            .handlePermanentlyDeniedPermission(getString(R.string.request_camera_msg))
+            .snackBarConfig(ContextCompat.getColor(this, R.color.black),
+                ContextCompat.getColor(this, R.color.white),
+                ContextCompat.getColor(this, R.color.purple_200))
             .handle(this) { permissionStatus ->
                 Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
             }

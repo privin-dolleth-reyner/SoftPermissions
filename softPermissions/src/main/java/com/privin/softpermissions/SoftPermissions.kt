@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -27,6 +28,10 @@ class SoftPermissions : AppCompatActivity() {
     private lateinit var mode: String
     private lateinit var permission: String
     private lateinit var permissions: Array<String>
+
+    private val snackBar: Snackbar by lazy {
+        createSnackBar()
+    }
 
     enum class PermissionStatus {
         /** Permission granted */
@@ -147,12 +152,28 @@ class SoftPermissions : AppCompatActivity() {
         sharedPref.edit().putBoolean(permission, true).apply()
     }
 
-    private fun showNoPermissionMsg() {
+    private fun createSnackBar(): Snackbar {
+        val msg = intent?.getStringExtra(ARG_HANDLE_PERMANENTLY_DENIED_MSG) ?: resources.getString(R.string.no_permission_msg)
         val snackBar = Snackbar.make(
             msgContainerView,
-            resources.getString(R.string.no_permission_msg),
+            msg,
             Snackbar.LENGTH_INDEFINITE
         )
+        intent?.extras?.let { bundle ->
+            val backgroundColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, -1)
+            val textColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_TEXT_COLOR, -1)
+            val actionTextColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR, -1)
+            if (backgroundColor != -1){
+                snackBar.setBackgroundTint(backgroundColor)
+            }
+            if (textColor != -1){
+                snackBar.setTextColor(textColor)
+            }
+            if (actionTextColor != -1){
+                snackBar.setActionTextColor(actionTextColor)
+            }
+        }
+
         snackBar.setAction(resources.getString(R.string.settings)) {
             val intent = Intent()
             intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -161,7 +182,13 @@ class SoftPermissions : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-        snackBar.show()
+        return snackBar
+    }
+
+    private fun showNoPermissionMsg() {
+        if (snackBar.isShown.not()) {
+            snackBar.show()
+        }
     }
 
     companion object {
@@ -174,6 +201,10 @@ class SoftPermissions : AppCompatActivity() {
         private const val ARG_PERMISSION = "permission"
         private const val ARG_MULTIPLE_PERMISSIONS = "multiple_permissions"
         private const val ARG_HANDLE_PERMANENTLY_DENIED = "handle_permanently_denied"
+        private const val ARG_HANDLE_PERMANENTLY_DENIED_MSG = "handle_permanently_denied_msg"
+        private const val ARG_CONFIG_SNACK_BAR_TEXT_COLOR = "arg_config_snack_bar_text_color"
+        private const val ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR = "arg_config_snack_bar_action_text_color"
+        private const val ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR = "arg_config_snack_bar_background_color"
 
         private val permissionIntent = Intent()
 
@@ -181,6 +212,19 @@ class SoftPermissions : AppCompatActivity() {
             val sharedPref =
                 context.getSharedPreferences(SOFT_PERMISSIONS_PREF, Context.MODE_PRIVATE)
             return sharedPref.getBoolean(permission, false).not()
+        }
+
+        fun snackBarConfig(@ColorInt backgroundColor: Int? = null, @ColorInt textColor: Int? = null, @ColorInt actionTextColor: Int? = null): Companion {
+            backgroundColor?.let {
+                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, it)
+            }
+            textColor?.let {
+                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_TEXT_COLOR, it)
+            }
+            actionTextColor?.let {
+                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR, it)
+            }
+            return this
         }
 
         fun checkPermission(activity: Activity, permission: String): PermissionStatus {
@@ -225,8 +269,11 @@ class SoftPermissions : AppCompatActivity() {
         }
 
         // Shows snackBar message with action to settings page to enable permissions
-        fun handlePermanentlyDeniedPermission(): Companion {
+        fun handlePermanentlyDeniedPermission(msg: String? = null): Companion {
             permissionIntent.putExtra(ARG_HANDLE_PERMANENTLY_DENIED, true)
+            msg?.let {
+                permissionIntent.putExtra(ARG_HANDLE_PERMANENTLY_DENIED_MSG, it)
+            }
             return this
         }
 
