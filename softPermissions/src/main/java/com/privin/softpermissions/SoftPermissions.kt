@@ -159,7 +159,7 @@ class SoftPermissions : AppCompatActivity() {
             msg,
             Snackbar.LENGTH_INDEFINITE
         )
-        intent?.extras?.let { bundle ->
+        intent?.extras?.getBundle(ARG_SNACK_BAR_CONFIG)?.let { bundle ->
             val backgroundColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, -1)
             val textColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_TEXT_COLOR, -1)
             val actionTextColor = bundle.getInt(ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR, -1)
@@ -205,8 +205,19 @@ class SoftPermissions : AppCompatActivity() {
         private const val ARG_CONFIG_SNACK_BAR_TEXT_COLOR = "arg_config_snack_bar_text_color"
         private const val ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR = "arg_config_snack_bar_action_text_color"
         private const val ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR = "arg_config_snack_bar_background_color"
+        private const val ARG_SNACK_BAR_CONFIG = "arg_snackBar_config"
 
         private var permissionIntent = Intent()
+        private var snackBarConfig = Bundle()
+        private var snackBarConfigRetained = Bundle()
+        private var retainConfig = false
+
+        private fun clear(){
+            permissionIntent = Intent().apply {
+                putExtra(ARG_SNACK_BAR_CONFIG, snackBarConfigRetained)
+            }
+            snackBarConfig = Bundle()
+        }
 
         private fun isNeverRequested(context: Context, permission: String): Boolean {
             val sharedPref =
@@ -214,16 +225,23 @@ class SoftPermissions : AppCompatActivity() {
             return sharedPref.getBoolean(permission, false).not()
         }
 
-        fun snackBarConfig(@ColorInt backgroundColor: Int? = null, @ColorInt textColor: Int? = null, @ColorInt actionTextColor: Int? = null): Companion {
+        fun snackBarConfig(@ColorInt backgroundColor: Int? = null, @ColorInt textColor: Int? = null, @ColorInt actionTextColor: Int? = null, retainConfig: Boolean? = null): Companion {
             backgroundColor?.let {
-                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, it)
+                snackBarConfig.putInt(ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR, it)
             }
             textColor?.let {
-                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_TEXT_COLOR, it)
+                snackBarConfig.putInt(ARG_CONFIG_SNACK_BAR_TEXT_COLOR, it)
             }
             actionTextColor?.let {
-                permissionIntent.putExtra(ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR, it)
+                snackBarConfig.putInt(ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR, it)
             }
+            retainConfig?.let {
+                this.retainConfig = it
+                if (it){
+                    snackBarConfigRetained = snackBarConfig
+                }
+            }
+            permissionIntent.putExtra(ARG_SNACK_BAR_CONFIG, snackBarConfig)
             return this
         }
 
@@ -283,7 +301,7 @@ class SoftPermissions : AppCompatActivity() {
             permissionIntent.setClass(context, SoftPermissions::class.java)
             this.permissionResult = permissionResult
             context.startActivity(permissionIntent)
-            permissionIntent = Intent()
+            clear()
         }
 
         /* handles multiple request permissions
@@ -297,7 +315,7 @@ class SoftPermissions : AppCompatActivity() {
             permissionIntent.setClass(context, SoftPermissions::class.java)
             this.multiplePermissionResult = multiplePermissionResult
             context.startActivity(permissionIntent)
-            permissionIntent = Intent()
+            clear()
         }
     }
 }
