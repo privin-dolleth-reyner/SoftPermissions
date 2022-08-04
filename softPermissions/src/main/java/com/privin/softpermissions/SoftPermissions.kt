@@ -206,7 +206,7 @@ class SoftPermissions : AppCompatActivity() {
         private const val ARG_CONFIG_SNACK_BAR_ACTION_TEXT_COLOR = "arg_config_snack_bar_action_text_color"
         private const val ARG_CONFIG_SNACK_BAR_BACKGROUND_COLOR = "arg_config_snack_bar_background_color"
 
-        private val permissionIntent = Intent()
+        private var permissionIntent = Intent()
 
         private fun isNeverRequested(context: Context, permission: String): Boolean {
             val sharedPref =
@@ -283,6 +283,7 @@ class SoftPermissions : AppCompatActivity() {
             permissionIntent.setClass(context, SoftPermissions::class.java)
             this.permissionResult = permissionResult
             context.startActivity(permissionIntent)
+            permissionIntent = Intent()
         }
 
         /* handles multiple request permissions
@@ -296,6 +297,7 @@ class SoftPermissions : AppCompatActivity() {
             permissionIntent.setClass(context, SoftPermissions::class.java)
             this.multiplePermissionResult = multiplePermissionResult
             context.startActivity(permissionIntent)
+            permissionIntent = Intent()
         }
     }
 }
