@@ -2,7 +2,7 @@
 
 
 
-A library to handle android permissions targeting android M and above. This library is intented for kotlin users.
+A library to handle android permissions.
 
 ## Installation
 
