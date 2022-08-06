@@ -10,7 +10,7 @@ SoftPermissions is installed by adding the following dependency to your ```build
 
 ```
 dependencies {
-	implementation 'com.github.privin-dolleth-reyner:SoftPermissions:1.0.0'
+	implementation 'com.github.privin-dolleth-reyner:SoftPermissions:1.0.1'
 }
 ```
 
@@ -29,44 +29,50 @@ dependencyResolutionManagement {
 ## Usage
 
 SoftPermssions can be simply called with required permissions, and it will return callback with PermissionStatus
+The following code can be called from activity/fragment
 
 ```
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        val btnCamera = findViewById<Button>(R.id.btnReqCam)
-        val btnCameraAndStorage = findViewById<Button>(R.id.btnReqCamAndStorage)
-        btnCamera.setOnClickListener {
-            requestCameraPermission()
-        }
-        btnCameraAndStorage.setOnClickListener {
-            requestCameraAndStoragePermission()
-        }
-    }
-
-    private fun requestCameraPermission() {
-        SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
+SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
             .handle(this) { permissionStatus ->
                 Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun requestCameraAndStoragePermission() {
-        SoftPermissions.requiredMultiplePermissions(
+```
+To handle multiple permissions, use the below code
+```
+SoftPermissions.requiredMultiplePermissions(
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
             .handle(this) { permissionMap, allPermissionsGranted ->
                 if (allPermissionsGranted) {
-                     Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "All permissions are granted", Toast.LENGTH_LONG).show()
                 } else {
-                     Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Some permissions are denied", Toast.LENGTH_LONG).show()
                 }
-            } 
-    }
-}
+            }
+```
 
+To handle denied permissions chain ```handlePermanentlyDeniedPermission()```
+```
+SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
+	    .handlePermanentlyDeniedPermission(getString(R.string.request_camera_msg))
+            .handle(this) { permissionStatus ->
+                Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
+            }
+```
+The above code will show a snackbar to user with message and an action to navigate user to app details settings page. (if permission is denied twice)
+
+You can customize the snackBar's backgroundColor,textColor, actionTextColor. If you want to retain snackBar config throught the app then you can pass a boolean.
+```
+SoftPermissions.requiredPermission(Manifest.permission.CAMERA)
+            .handlePermanentlyDeniedPermission(getString(R.string.request_camera_msg))
+            .snackBarConfig(ContextCompat.getColor(this, R.color.black),
+                ContextCompat.getColor(this, R.color.white),
+                ContextCompat.getColor(this, R.color.purple_200),
+            true)
+            .handle(this) { permissionStatus ->
+                Toast.makeText(this, permissionStatus.name, Toast.LENGTH_SHORT).show()
+            }
 ```
 
 ## License
